@@ -1,0 +1,7 @@
+# Example configuration for unzipctl
+
+# Directory where archives to be unpacked are placed
+IMPORT_DIR="/mnt/apps/unzip/import"
+
+# Directory where files are unpacked to
+UNPACKED_DIR="/mnt/apps/unzip/unpacked"
