@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Default values
+IMPORT_DIR="/mnt/apps/unzip/import"
+UNPACKED_DIR="/mnt/apps/unzip/unpacked"
+
+# Load config if exists
+if [ -f /etc/unzipctl.conf ]; then
+    . /etc/unzipctl.conf
+elif [ -f ~/.unzipctl.conf ]; then
+    . ~/.unzipctl.conf
+fi
+
+show_help() {
+  cat <<EOF
+
+Usage:
+  unzipctl import <file1> [file2 ...]
+      → Kopiert Dateien ins Import-Verzeichnis.
+
+  unzipctl move <filename> <zielordner> [neuerDateiname]
+      → Verschiebt eine entpackte Datei an ein Ziel.
+         Optional kannst du einen neuen Dateinamen angeben.
+
+  unzipctl import_all
+      → Kopiert alle entpackten Dateien zurück ins Import-Verzeichnis.
+
+  unzipctl cleanup
+      → Löscht alle Dateien aus Import- und Unpacked-Verzeichnis.
+
+  unzipctl help
+      → Zeigt diese Hilfe an.
+
+Beispiele:
+  unzipctl import /mnt/apps/weechat-data/xfer/myfile.rar
+  unzipctl move myfile.mkv /mnt/tank/movs/neuerordner/
+  unzipctl move myfile.mkv /mnt/tank/movs/neuerordner/ newname.mkv
+  unzipctl import_all
+  unzipctl cleanup
+
+EOF
+}
+
+case "$1" in
+  import)
+    shift
+    if [ $# -eq 0 ]; then
+      echo "Fehler: Keine Dateien angegeben."
+      exit 1
+    fi
+    for file in "$@"; do
+      echo "Importiere $file → $IMPORT_DIR"
+      sudo cp "$file" "$IMPORT_DIR"
+    done
+    ;;
+
+  move)
+    FILE="$2"
+    TARGET_DIR="$3"
+    NEW_NAME="$4"
+
+    if [ -z "$FILE" ] || [ -z "$TARGET_DIR" ]; then
+      echo "Fehler: move benötigt mindestens <filename> und <zielordner>."
+      show_help
+      exit 1
+    fi
+
+    if [ -z "$NEW_NAME" ]; then
+      echo "Verschiebe $UNPACKED_DIR/$FILE → $TARGET_DIR/$FILE"
+      sudo mv "$UNPACKED_DIR/$FILE" "$TARGET_DIR/$FILE"
+    else
+      echo "Verschiebe $UNPACKED_DIR/$FILE → $TARGET_DIR/$NEW_NAME"
+      sudo mv "$UNPACKED_DIR/$FILE" "$TARGET_DIR/$NEW_NAME"
+    fi
+    ;;
+
+  import_all)
+    echo "Importiere alle entpackten Dateien zurück ins Import-Verzeichnis..."
+    sudo cp -v "$UNPACKED_DIR"/* "$IMPORT_DIR"/
+    ;;
+
+  cleanup)
+    echo "Lösche Inhalte von $IMPORT_DIR und $UNPACKED_DIR..."
+    sudo rm -rf "$IMPORT_DIR"/*
+    sudo rm -rf "$UNPACKED_DIR"/*
+    ;;
+
+  help|*)
+    show_help
+    ;;
+esac
