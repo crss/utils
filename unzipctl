@@ -3,6 +3,7 @@
 # Default paths
 IMPORT_DIR="/mnt/apps/unzip/import"
 UNPACKED_DIR="/mnt/apps/unzip/unpacked"
+DOWNLOAD_DIR="/mnt/apps/weechat-data/xfer"
 
 # Load config if it exists
 if [ -f /etc/unzipctl.conf ]; then
@@ -16,17 +17,19 @@ show_help() {
 
 Usage:
   unzipctl import <file1> [file2 ...]
-      → Copies one or more files into the import directory.
+      → Copies files into the import directory.
 
   unzipctl move <filename> <target_directory> [new_filename]
-      → Moves a file from the unpacked directory into a target location.
-        Optionally you can rename the file during the move.
+      → Moves an unpacked file to a target directory.
 
   unzipctl import_all
-      → Copies all files from the unpacked folder back into the import folder.
+      → Copies all unpacked files back to the import directory.
 
   unzipctl cleanup
-      → Deletes all files from the import and unpacked directories.
+      → Deletes all files in import and unpacked directories.
+
+  unzipctl cleanup_download
+      → Deletes all files in the download directory ($DOWNLOAD_DIR)
 
   unzipctl help
       → Shows this help message.
@@ -34,12 +37,10 @@ Usage:
 Examples:
   unzipctl import /mnt/apps/weechat-data/xfer/myfile.rar
   unzipctl move myfile.mkv /mnt/tank/movies/newfolder/
-  unzipctl move myfile.mkv /mnt/tank/movies/newfolder/ newname.mkv
-  unzipctl import_all
-  unzipctl cleanup
-
+  unzipctl cleanup_download
 EOF
 }
+
 
 case "$1" in
   import)
@@ -83,6 +84,11 @@ case "$1" in
     echo "Clearing contents of $IMPORT_DIR and $UNPACKED_DIR..."
     sudo rm -rf "$IMPORT_DIR"/*
     sudo rm -rf "$UNPACKED_DIR"/*
+    ;;
+
+  cleanup_download)
+    echo "Cleaning up $DOWNLOAD_DIR..."
+    sudo rm -rf "$DOWNLOAD_DIR"/*
     ;;
 
   help|*)
