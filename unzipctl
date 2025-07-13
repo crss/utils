@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Default values
+# Default paths
 IMPORT_DIR="/mnt/apps/unzip/import"
 UNPACKED_DIR="/mnt/apps/unzip/unpacked"
 
-# Load config if exists
+# Load config if it exists
 if [ -f /etc/unzipctl.conf ]; then
-    . /etc/unzipctl.conf
+  . /etc/unzipctl.conf
 elif [ -f ~/.unzipctl.conf ]; then
-    . ~/.unzipctl.conf
+  . ~/.unzipctl.conf
 fi
 
 show_help() {
@@ -16,25 +16,25 @@ show_help() {
 
 Usage:
   unzipctl import <file1> [file2 ...]
-      → Kopiert Dateien ins Import-Verzeichnis.
+      → Copies one or more files into the import directory.
 
-  unzipctl move <filename> <zielordner> [neuerDateiname]
-      → Verschiebt eine entpackte Datei an ein Ziel.
-         Optional kannst du einen neuen Dateinamen angeben.
+  unzipctl move <filename> <target_directory> [new_filename]
+      → Moves a file from the unpacked directory into a target location.
+        Optionally you can rename the file during the move.
 
   unzipctl import_all
-      → Kopiert alle entpackten Dateien zurück ins Import-Verzeichnis.
+      → Copies all files from the unpacked folder back into the import folder.
 
   unzipctl cleanup
-      → Löscht alle Dateien aus Import- und Unpacked-Verzeichnis.
+      → Deletes all files from the import and unpacked directories.
 
   unzipctl help
-      → Zeigt diese Hilfe an.
+      → Shows this help message.
 
-Beispiele:
+Examples:
   unzipctl import /mnt/apps/weechat-data/xfer/myfile.rar
-  unzipctl move myfile.mkv /mnt/tank/movs/neuerordner/
-  unzipctl move myfile.mkv /mnt/tank/movs/neuerordner/ newname.mkv
+  unzipctl move myfile.mkv /mnt/tank/movies/newfolder/
+  unzipctl move myfile.mkv /mnt/tank/movies/newfolder/ newname.mkv
   unzipctl import_all
   unzipctl cleanup
 
@@ -45,11 +45,11 @@ case "$1" in
   import)
     shift
     if [ $# -eq 0 ]; then
-      echo "Fehler: Keine Dateien angegeben."
+      echo "Error: No files specified."
       exit 1
     fi
     for file in "$@"; do
-      echo "Importiere $file → $IMPORT_DIR"
+      echo "Importing $file → $IMPORT_DIR"
       sudo cp "$file" "$IMPORT_DIR"
     done
     ;;
@@ -60,27 +60,27 @@ case "$1" in
     NEW_NAME="$4"
 
     if [ -z "$FILE" ] || [ -z "$TARGET_DIR" ]; then
-      echo "Fehler: move benötigt mindestens <filename> und <zielordner>."
+      echo "Error: move requires at least <filename> and <target_directory>."
       show_help
       exit 1
     fi
 
     if [ -z "$NEW_NAME" ]; then
-      echo "Verschiebe $UNPACKED_DIR/$FILE → $TARGET_DIR/$FILE"
+      echo "Moving $UNPACKED_DIR/$FILE → $TARGET_DIR/$FILE"
       sudo mv "$UNPACKED_DIR/$FILE" "$TARGET_DIR/$FILE"
     else
-      echo "Verschiebe $UNPACKED_DIR/$FILE → $TARGET_DIR/$NEW_NAME"
+      echo "Moving $UNPACKED_DIR/$FILE → $TARGET_DIR/$NEW_NAME"
       sudo mv "$UNPACKED_DIR/$FILE" "$TARGET_DIR/$NEW_NAME"
     fi
     ;;
 
   import_all)
-    echo "Importiere alle entpackten Dateien zurück ins Import-Verzeichnis..."
+    echo "Copying all files from $UNPACKED_DIR back into $IMPORT_DIR..."
     sudo cp -v "$UNPACKED_DIR"/* "$IMPORT_DIR"/
     ;;
 
   cleanup)
-    echo "Lösche Inhalte von $IMPORT_DIR und $UNPACKED_DIR..."
+    echo "Clearing contents of $IMPORT_DIR and $UNPACKED_DIR..."
     sudo rm -rf "$IMPORT_DIR"/*
     sudo rm -rf "$UNPACKED_DIR"/*
     ;;
