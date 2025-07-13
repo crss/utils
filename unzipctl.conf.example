@@ -5,3 +5,6 @@ IMPORT_DIR="/mnt/apps/unzip/import"
 
 # Directory where files are unpacked to
 UNPACKED_DIR="/mnt/apps/unzip/unpacked"
+
+# Directory where files are downloaded to
+DOWNLOAD_DIR="/mnt/apps/weechat-data/xfer"
