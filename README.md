@@ -30,6 +30,39 @@ sudo cp unzipctl /usr/local/bin/
 sudo chmod +x /usr/local/bin/unzipctl
 ```
 
+TrueNAS SCALE protects the root filesystem.
+System updates could overwrite custom binaries.
+So they keep /usr mostly read-only.
+
+#### ✅ How to solve it
+
+##### Pick a dataset, or create it
+
+```bash
+sudo mkdir -p /mnt/apps/scripts
+```
+
+##### Copy the script there
+
+```bash
+sudo cp unzipctl /mnt/apps/scripts/
+sudo chmod +x /mnt/apps/scripts/unzipctl
+```
+
+##### Add it to your PATH
+
+So you can just type unzipctl anywhere:
+Edit your shell profile, e.g. .bashrc:
+
+```bash
+echo 'export PATH=$PATH:/mnt/apps/scripts' >> ~/.bashrc
+source ~/.bashrc
+```
+Now just type:
+```bash
+unzipctl help
+```
+
 ### 3. Copy and edit the configuration file
 Copy the example config:
 
